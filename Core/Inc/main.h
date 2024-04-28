@@ -49,14 +49,36 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+uint32_t keyboard_read(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define KBD_A_Pin GPIO_PIN_12
+#define KBD_A_GPIO_Port GPIOB
+#define KBD_B_Pin GPIO_PIN_13
+#define KBD_B_GPIO_Port GPIOB
+#define KBD_C_Pin GPIO_PIN_14
+#define KBD_C_GPIO_Port GPIOB
+#define KBD_D_Pin GPIO_PIN_15
+#define KBD_D_GPIO_Port GPIOB
+#define KBD_1_Pin GPIO_PIN_3
+#define KBD_1_GPIO_Port GPIOB
+#define KBD_2_Pin GPIO_PIN_4
+#define KBD_2_GPIO_Port GPIOB
+#define KBD_3_Pin GPIO_PIN_5
+#define KBD_3_GPIO_Port GPIOB
+#define KBD_4_Pin GPIO_PIN_6
+#define KBD_4_GPIO_Port GPIOB
+#define KBD_5_Pin GPIO_PIN_7
+#define KBD_5_GPIO_Port GPIOB
+#define KBD_6_Pin GPIO_PIN_8
+#define KBD_6_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
