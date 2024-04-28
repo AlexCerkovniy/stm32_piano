@@ -104,8 +104,22 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  static uint32_t keyboard_state = 0;
+	  static uint32_t keyboard_state_prev = 0;
 
+	  keyboard_state_prev = keyboard_state;
 	  keyboard_state = keyboard_read();
+
+	  if(keyboard_state != keyboard_state_prev){
+		  if(keyboard_state){
+			  buzzer_play(330, 20);
+		  }
+		  else{
+			  buzzer_stop();
+		  }
+
+		  keyboard_state_prev = keyboard_state;
+	  }
+
 	  HAL_Delay(50);
   }
   /* USER CODE END 3 */
@@ -207,7 +221,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 15;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -349,6 +363,17 @@ uint32_t keyboard_read(void){
 	 GPIOB->BSRR = KBD_A_Pin|KBD_B_Pin|KBD_C_Pin|KBD_D_Pin;
 
 	 return tmp;
+}
+
+void buzzer_play(uint32_t freq, uint32_t volume){
+	TIM1->ARR = (64000000/TIM1->PSC)/freq - 1;
+	TIM1->CCR1 = (volume * (((uint16_t)(TIM1->ARR))/2))/100;
+	TIM1->EGR = TIM_EGR_UG;
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+}
+
+void buzzer_stop(void){
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 }
 
 /* USER CODE END 4 */
