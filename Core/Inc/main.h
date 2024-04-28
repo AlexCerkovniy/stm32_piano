@@ -56,6 +56,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 uint32_t keyboard_read(void);
+uint32_t keyboard_get_key(uint32_t state);
 void buzzer_play(uint32_t freq, uint32_t volume);
 void buzzer_stop(void);
 /* USER CODE END EFP */

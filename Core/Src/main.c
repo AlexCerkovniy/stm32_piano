@@ -111,7 +111,7 @@ int main(void)
 
 	  if(keyboard_state != keyboard_state_prev){
 		  if(keyboard_state){
-			  buzzer_play(330, 20);
+			  buzzer_play(240 + keyboard_get_key(keyboard_state) * 20, 20);
 		  }
 		  else{
 			  buzzer_stop();
@@ -363,6 +363,21 @@ uint32_t keyboard_read(void){
 	 GPIOB->BSRR = KBD_A_Pin|KBD_B_Pin|KBD_C_Pin|KBD_D_Pin;
 
 	 return tmp;
+}
+
+uint32_t keyboard_get_key(uint32_t state){
+	uint32_t keynum = 0;
+
+	if(!state) return;
+
+	while(1){
+		if(state & 0x01){
+			return keynum;
+		}
+
+		state >>= 1;
+		keynum++;
+	}
 }
 
 void buzzer_play(uint32_t freq, uint32_t volume){
