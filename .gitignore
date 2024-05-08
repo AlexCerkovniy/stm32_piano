@@ -11,10 +11,12 @@
 *.ilk
 *.map
 *.exp
+*.mk
 
 # Precompiled Headers
 *.gch
 *.pch
+Debug/
 
 # Libraries
 *.lib

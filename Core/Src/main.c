@@ -368,7 +368,7 @@ uint32_t keyboard_read(void){
 uint32_t keyboard_get_key(uint32_t state){
 	uint32_t keynum = 0;
 
-	if(!state) return;
+	if(state == 0) return keynum;
 
 	while(1){
 		if(state & 0x01){
