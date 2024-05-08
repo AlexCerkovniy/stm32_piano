@@ -109,10 +109,9 @@ void synth_init(void){
 
 	//setup array with tone frequency phase increments
 	settones();
-}
 
-void synth_tick(void){
-
+	/* Enable PWM output */
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 }
 
 //initialize the main parameters of the pulse length setting
@@ -125,13 +124,13 @@ unsigned int FMinc[nch]  = {0,0,0,0};
 unsigned int FMamp[nch]  = {0,0,0,0};
 
 // main function (forced inline) to update the pulse length
-inline void setPWM() __attribute__((always_inline));
-inline void setPWM() {
+//inline void setPWM(void) __attribute__((always_inline));
+/*inline*/ void setPWM(void) {
   //wait for the timer to complete loop
-  //while ((TIFR1 & 0B00000001) == 0);
+  while((TIM1->SR & TIM_SR_UIF) == 0);
 
-  //Clear(!) the overflow bit by writing a 1 to it
-  //TIFR1 |= 0B00000001;
+  //Clear(!) the overflow bit by writing a 0 to it
+  TIM1->SR &= ~TIM_SR_UIF;
 
   //increment the phases of the FM
   FMphase[0] += FMinc[0];
@@ -172,3 +171,213 @@ unsigned int FMexp[nch]     = {0, 0, 0, 0};
 unsigned int FMval[nch]     = {0, 0, 0, 0};
 uint8_t      keych[nch]     = {0, 0, 0, 0};
 unsigned int tch[nch]       = {0, 0, 0, 0};
+
+void synth_tick(void){
+	  uint8_t keypressed = nokey;
+	  uint8_t keyreleased = nokey;
+
+//	  read and interpret input buttons
+//	  prevbutstatD = butstatD;
+//	  prevbutstatB = butstatB;
+//	  prevbutstatC = butstatC;
+//	  butstatD = PIND;
+//	  butstatB = PINB;
+//	  butstatC = PINC;
+//	  if(butstatD!=prevbutstatD){
+//	    if ( pinD0!=nokey and (butstatD & (1<<0)) == 0 and (prevbutstatD & (1<<0)) >  0 ) keypressed  = pinD0;
+//	    if ( pinD0!=nokey and (butstatD & (1<<0)) >  0 and (prevbutstatD & (1<<0)) == 0 ) keyreleased = pinD0;
+//	    if ( pinD1!=nokey and (butstatD & (1<<1)) == 0 and (prevbutstatD & (1<<1)) >  0 ) keypressed  = pinD1;
+//	    if ( pinD1!=nokey and (butstatD & (1<<1)) >  0 and (prevbutstatD & (1<<1)) == 0 ) keyreleased = pinD1;
+//	    if ( pinD2!=nokey and (butstatD & (1<<2)) == 0 and (prevbutstatD & (1<<2)) >  0 ) keypressed  = pinD2;
+//	    if ( pinD2!=nokey and (butstatD & (1<<2)) >  0 and (prevbutstatD & (1<<2)) == 0 ) keyreleased = pinD2;
+//	    if ( pinD3!=nokey and (butstatD & (1<<3)) == 0 and (prevbutstatD & (1<<3)) >  0 ) keypressed  = pinD3;
+//	    if ( pinD3!=nokey and (butstatD & (1<<3)) >  0 and (prevbutstatD & (1<<3)) == 0 ) keyreleased = pinD3;
+//	    if ( pinD4!=nokey and (butstatD & (1<<4)) == 0 and (prevbutstatD & (1<<4)) >  0 ) keypressed  = pinD4;
+//	    if ( pinD4!=nokey and (butstatD & (1<<4)) >  0 and (prevbutstatD & (1<<4)) == 0 ) keyreleased = pinD4;
+//	    if ( pinD5!=nokey and (butstatD & (1<<5)) == 0 and (prevbutstatD & (1<<5)) >  0 ) keypressed  = pinD5;
+//	    if ( pinD5!=nokey and (butstatD & (1<<5)) >  0 and (prevbutstatD & (1<<5)) == 0 ) keyreleased = pinD5;
+//	    if ( pinD6!=nokey and (butstatD & (1<<6)) == 0 and (prevbutstatD & (1<<6)) >  0 ) keypressed  = pinD6;
+//	    if ( pinD6!=nokey and (butstatD & (1<<6)) >  0 and (prevbutstatD & (1<<6)) == 0 ) keyreleased = pinD6;
+//	    if ( pinD7!=nokey and (butstatD & (1<<7)) == 0 and (prevbutstatD & (1<<7)) >  0 ) keypressed  = pinD7;
+//	    if ( pinD7!=nokey and (butstatD & (1<<7)) >  0 and (prevbutstatD & (1<<7)) == 0 ) keyreleased = pinD7;
+//	  }
+//	  if(butstatB!=prevbutstatB){
+//	    if ( pinB0!=nokey and (butstatB & (1<<0)) == 0 and (prevbutstatB & (1<<0)) >  0 ) keypressed  = pinB0;
+//	    if ( pinB0!=nokey and (butstatB & (1<<0)) >  0 and (prevbutstatB & (1<<0)) == 0 ) keyreleased = pinB0;
+//	    if ( pinB1!=nokey and (butstatB & (1<<1)) == 0 and (prevbutstatB & (1<<1)) >  0 ) keypressed  = pinB1;
+//	    if ( pinB1!=nokey and (butstatB & (1<<1)) >  0 and (prevbutstatB & (1<<1)) == 0 ) keyreleased = pinB1;
+//	    if ( pinB2!=nokey and (butstatB & (1<<2)) == 0 and (prevbutstatB & (1<<2)) >  0 ) keypressed  = pinB2;
+//	    if ( pinB2!=nokey and (butstatB & (1<<2)) >  0 and (prevbutstatB & (1<<2)) == 0 ) keyreleased = pinB2;
+//	    if ( pinB3!=nokey and (butstatB & (1<<3)) == 0 and (prevbutstatB & (1<<3)) >  0 ) keypressed  = pinB3;
+//	    if ( pinB3!=nokey and (butstatB & (1<<3)) >  0 and (prevbutstatB & (1<<3)) == 0 ) keyreleased = pinB3;
+//	    if ( pinB4!=nokey and (butstatB & (1<<4)) == 0 and (prevbutstatB & (1<<4)) >  0 ) keypressed  = pinB4;
+//	    if ( pinB4!=nokey and (butstatB & (1<<4)) >  0 and (prevbutstatB & (1<<4)) == 0 ) keyreleased = pinB4;
+//	    if ( pinB5!=nokey and (butstatB & (1<<5)) == 0 and (prevbutstatB & (1<<5)) >  0 ) keypressed  = pinB5;
+//	    if ( pinB5!=nokey and (butstatB & (1<<5)) >  0 and (prevbutstatB & (1<<5)) == 0 ) keyreleased = pinB5;
+//	    if ( pinB6!=nokey and (butstatB & (1<<6)) == 0 and (prevbutstatB & (1<<6)) >  0 ) keypressed  = pinB6;
+//	    if ( pinB6!=nokey and (butstatB & (1<<6)) >  0 and (prevbutstatB & (1<<6)) == 0 ) keyreleased = pinB6;
+//	    if ( pinB7!=nokey and (butstatB & (1<<7)) == 0 and (prevbutstatB & (1<<7)) >  0 ) keypressed  = pinB7;
+//	    if ( pinB7!=nokey and (butstatB & (1<<7)) >  0 and (prevbutstatB & (1<<7)) == 0 ) keyreleased = pinB7;
+//	  }
+//	  if(butstatC!=prevbutstatC){
+//	    if ( pinC0!=nokey and (butstatC & (1<<0)) == 0 and (prevbutstatC & (1<<0)) >  0 ) keypressed  = pinC0;
+//	    if ( pinC0!=nokey and (butstatC & (1<<0)) >  0 and (prevbutstatC & (1<<0)) == 0 ) keyreleased = pinC0;
+//	    if ( pinC1!=nokey and (butstatC & (1<<1)) == 0 and (prevbutstatC & (1<<1)) >  0 ) keypressed  = pinC1;
+//	    if ( pinC1!=nokey and (butstatC & (1<<1)) >  0 and (prevbutstatC & (1<<1)) == 0 ) keyreleased = pinC1;
+//	    if ( pinC2!=nokey and (butstatC & (1<<2)) == 0 and (prevbutstatC & (1<<2)) >  0 ) keypressed  = pinC2;
+//	    if ( pinC2!=nokey and (butstatC & (1<<2)) >  0 and (prevbutstatC & (1<<2)) == 0 ) keyreleased = pinC2;
+//	    if ( pinC3!=nokey and (butstatC & (1<<3)) == 0 and (prevbutstatC & (1<<3)) >  0 ) keypressed  = pinC3;
+//	    if ( pinC3!=nokey and (butstatC & (1<<3)) >  0 and (prevbutstatC & (1<<3)) == 0 ) keyreleased = pinC3;
+//	    if ( pinC4!=nokey and (butstatC & (1<<4)) == 0 and (prevbutstatC & (1<<4)) >  0 ) keypressed  = pinC4;
+//	    if ( pinC4!=nokey and (butstatC & (1<<4)) >  0 and (prevbutstatC & (1<<4)) == 0 ) keyreleased = pinC4;
+//	    if ( pinC5!=nokey and (butstatC & (1<<5)) == 0 and (prevbutstatC & (1<<5)) >  0 ) keypressed  = pinC5;
+//	    if ( pinC5!=nokey and (butstatC & (1<<5)) >  0 and (prevbutstatC & (1<<5)) == 0 ) keyreleased = pinC5;
+//	    if ( pinC6!=nokey and (butstatC & (1<<6)) == 0 and (prevbutstatC & (1<<6)) >  0 ) keypressed  = pinC6;
+//	    if ( pinC6!=nokey and (butstatC & (1<<6)) >  0 and (prevbutstatC & (1<<6)) == 0 ) keyreleased = pinC6;
+//	    if ( pinC7!=nokey and (butstatC & (1<<7)) == 0 and (prevbutstatC & (1<<7)) >  0 ) keypressed  = pinC7;
+//	    if ( pinC7!=nokey and (butstatC & (1<<7)) >  0 and (prevbutstatC & (1<<7)) == 0 ) keyreleased = pinC7;
+//	  }
+
+	  setPWM(); //#1
+
+	  //change instrument if instrument select button is pressed
+	  if ( keypressed==instrkey) {
+	    instr++;
+	    if (instr>=ninstr) instr=0;
+	    keypressed=keyA4;
+	  }
+	  if (keyreleased==instrkey) keyreleased=keyA4;
+
+	  setPWM(); //#2
+
+	  //find the best channel to start a new note
+	  uint8_t nextch = 255;
+
+	  //first check if the key is still being played
+	  if ((iADSR[0] > 0) & (keypressed == keych[0])) nextch = 0;
+	  if ((iADSR[1] > 0) & (keypressed == keych[1])) nextch = 1;
+	  if ((iADSR[2] > 0) & (keypressed == keych[2])) nextch = 2;
+	  if ((iADSR[3] > 0) & (keypressed == keych[3])) nextch = 3;
+
+	  //then check for an empty channel
+	  if (nextch == 255) {
+	    if (iADSR[0] == 0)nextch = 0;
+	    if (iADSR[1] == 0)nextch = 1;
+	    if (iADSR[2] == 0)nextch = 2;
+	    if (iADSR[3] == 0)nextch = 3;
+	  }
+	  //otherwise use the channel with the longest playing note
+	  if (nextch == 255) {
+	    nextch = 0;
+	    if (tch[0] > tch[nextch])nextch = 0;
+	    if (tch[1] > tch[nextch])nextch = 1;
+	    if (tch[2] > tch[nextch])nextch = 2;
+	    if (tch[3] > tch[nextch])nextch = 3;
+	  }
+
+	  setPWM(); //#3
+
+	  //initiate new note if needed
+	  if (keypressed != nokey) {
+	    phase[nextch]=0;
+	    amp_base[nextch] = ldness[instr];
+	    inc_base[nextch] = tone_inc[pitch0[instr]+keypressed];
+	    ADSRa[nextch]=ADSR_a[instr];
+	    ADSRd[nextch]=ADSR_d[instr];
+	    ADSRs[nextch]=ADSR_s[instr]<<8;
+	    ADSRr[nextch]=ADSR_r[instr];
+	    iADSR[nextch] = 1;
+	    FMphase[nextch]=0;
+	    FMinc_base[nextch] = ((long)inc_base[nextch]*FM_inc[instr])/256;
+	    FMa0[nextch] = FM_a2[instr];
+	    FMda[nextch] = FM_a1[instr]-FM_a2[instr];
+	    FMexp[nextch]=0xFFFF;
+	    FMdec[nextch]=FM_dec[instr];
+	    keych[nextch] = keypressed;
+	    tch[nextch] = 0;
+	  }
+
+	  setPWM(); //#4
+
+	  //stop a note if the button is released
+	  if (keyreleased != nokey) {
+	    if (keych[0] == keyreleased)iADSR[0] = 4;
+	    if (keych[1] == keyreleased)iADSR[1] = 4;
+	    if (keych[2] == keyreleased)iADSR[2] = 4;
+	    if (keych[3] == keyreleased)iADSR[3] = 4;
+	  }
+
+	  setPWM(); //#5
+
+	  //update FM decay exponential
+	  FMexp[0]-=(long)FMexp[0]*FMdec[0]>>16;
+	  FMexp[1]-=(long)FMexp[1]*FMdec[1]>>16;
+	  FMexp[2]-=(long)FMexp[2]*FMdec[2]>>16;
+	  FMexp[3]-=(long)FMexp[3]*FMdec[3]>>16;
+
+	  setPWM(); //#6
+
+	  //adjust the ADSR envelopes
+	  for (uint8_t ich = 0; ich < nch; ich++) {
+	    if (iADSR[ich] == 4) {
+	      if (envADSR[ich] <= ADSRr[ich]) {
+	        envADSR[ich] = 0;
+	        iADSR[ich] = 0;
+	      }
+	      else envADSR[ich] -= ADSRr[ich];
+	    }
+	    if (iADSR[ich] == 2) {
+	      if (envADSR[ich] <= (ADSRs[ich] + ADSRd[ich])) {
+	        envADSR[ich] = ADSRs[ich];
+	        iADSR[ich] = 3;
+	      }
+	      else envADSR[ich] -= ADSRd[ich];
+	    }
+	    if (iADSR[ich] == 1) {
+	      if ((0xFFFF - envADSR[ich]) <= ADSRa[ich]) {
+	        envADSR[ich] = 0xFFFF;
+	        iADSR[ich] = 2;
+	      }
+	      else envADSR[ich] += ADSRa[ich];
+	    }
+	    tch[ich]++;
+	    setPWM(); //#7-10
+	  }
+
+	  //update the tone for channel 0
+	  amp[0] = (amp_base[0] * (envADSR[0] >> 8)) >> 8;
+	  inc[0] = inc_base[0];
+	  FMamp[0] = FMa0[0] + ((long)FMda[0] * FMexp[0]>>16);
+	  FMinc[0] = FMinc_base[0];
+	  setPWM(); //#11
+
+	  //update the tone for channel 1
+	  amp[1] = (amp_base[1] * (envADSR[1] >> 8)) >> 8;
+	  inc[1] = inc_base[1];
+	  FMamp[1] = FMa0[1] + ((long)FMda[1] * FMexp[1]>>16);
+	  FMinc[1] = FMinc_base[1];
+	  setPWM(); //#12
+
+	  //update the tone for channel 2
+	  amp[2] = (amp_base[2] * (envADSR[2] >> 8)) >> 8;
+	  inc[2] = inc_base[2];
+	  FMamp[2] = FMa0[2] + ((long)FMda[2] * FMexp[2]>>16);
+	  FMinc[2] = FMinc_base[2];
+	  setPWM(); //#13
+
+	  //update the tone for channel 3
+	  amp[3] = (amp_base[3] * (envADSR[3] >> 8)) >> 8;
+	  inc[3] = inc_base[3];
+	  FMamp[3] = FMa0[3] + ((long)FMda[3] * FMexp[3]>>16);
+	  FMinc[3] = FMinc_base[3];
+	  setPWM(); //#14
+
+	  //update counters
+	  tch[0]++;
+	  tch[1]++;
+	  tch[2]++;
+	  tch[3]++;
+
+	  setPWM(); //#15
+}
+

@@ -103,23 +103,25 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  static uint32_t keyboard_state = 0;
-	  static uint32_t keyboard_state_prev = 0;
+	  synth_tick();
 
-	  keyboard_state = keyboard_read();
-
-	  if(keyboard_state != keyboard_state_prev){
-		  if(keyboard_state){
-			  buzzer_play(240 + keyboard_get_key(keyboard_state) * 20, 20);
-		  }
-		  else{
-			  buzzer_stop();
-		  }
-
-		  keyboard_state_prev = keyboard_state;
-	  }
-
-	  HAL_Delay(50);
+//	  static uint32_t keyboard_state = 0;
+//	  static uint32_t keyboard_state_prev = 0;
+//
+//	  keyboard_state = keyboard_read();
+//
+//	  if(keyboard_state != keyboard_state_prev){
+//		  if(keyboard_state){
+//			  buzzer_play(240 + keyboard_get_key(keyboard_state) * 20, 20);
+//		  }
+//		  else{
+//			  buzzer_stop();
+//		  }
+//
+//		  keyboard_state_prev = keyboard_state;
+//	  }
+//
+//	  HAL_Delay(50);
   }
   /* USER CODE END 3 */
 }
