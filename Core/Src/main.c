@@ -106,7 +106,6 @@ int main(void)
 	  static uint32_t keyboard_state = 0;
 	  static uint32_t keyboard_state_prev = 0;
 
-	  keyboard_state_prev = keyboard_state;
 	  keyboard_state = keyboard_read();
 
 	  if(keyboard_state != keyboard_state_prev){
