@@ -105,24 +105,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  synth_set_keys(keyboard_read());
 	  synth_tick();
-
-//	  static uint32_t keyboard_state = 0;
-//	  static uint32_t keyboard_state_prev = 0;
-//
-//	  keyboard_state = keyboard_read();
-//
-//	  if(keyboard_state != keyboard_state_prev){
-//		  if(keyboard_state){
-//			  buzzer_play(240 + keyboard_get_key(keyboard_state) * 20, 20);
-//		  }
-//		  else{
-//			  buzzer_stop();
-//		  }
-//
-//		  keyboard_state_prev = keyboard_state;
-//	  }
-//
-//	  HAL_Delay(50);
   }
   /* USER CODE END 3 */
 }
@@ -224,9 +206,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 3;
+  htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 511;
+  htim1.Init.Period = 2285;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -344,7 +326,7 @@ uint32_t keyboard_read(void){
 		 GPIOB->BSRR = keyboard_coulumn_pin[line] << 16;
 
 		 /* Wait for a while */
-		 for(volatile uint32_t wait = 0; wait < 50; wait++);
+		 for(volatile uint32_t wait = 0; wait < 75; wait++);
 
 		 /* Read keys state port */
 		 tmp |= (~GPIOB->IDR & (KBD_1_Pin|KBD_2_Pin|KBD_3_Pin|KBD_4_Pin|KBD_5_Pin|KBD_6_Pin)) >> 3;
@@ -356,36 +338,8 @@ uint32_t keyboard_read(void){
 
 	 /* Set all lines to idle */
 	 GPIOB->BSRR = KBD_A_Pin|KBD_B_Pin|KBD_C_Pin|KBD_D_Pin;
-	 __NOP();
-	 __NOP();
 
 	 return tmp;
-}
-
-uint32_t keyboard_get_key(uint32_t state){
-	uint32_t keynum = 0;
-
-	if(state == 0) return keynum;
-
-	while(1){
-		if(state & 0x01){
-			return keynum;
-		}
-
-		state >>= 1;
-		keynum++;
-	}
-}
-
-void buzzer_play(uint32_t freq, uint32_t volume){
-	TIM1->ARR = (72000000/TIM1->PSC)/freq - 1;
-	TIM1->CCR1 = (volume * (((uint16_t)(TIM1->ARR))/2))/100;
-	TIM1->EGR = TIM_EGR_UG;
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-}
-
-void buzzer_stop(void){
-	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 }
 
 /* USER CODE END 4 */

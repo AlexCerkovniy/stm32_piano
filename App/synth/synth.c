@@ -56,35 +56,35 @@ unsigned int FM_dec[ninstr]  = {   64,  128,  128,  128,   32,  128,  128,  128,
 #define nokey 255
 #define instrkey 254
 
-//define the pin to key mapping for 18-key keyboard
-#define pinD0 keyC5    //Arduino pin D0
-#define pinD1 keyB4    //Arduino pin D1
-#define pinD2 keyA4s   //Arduino pin D2
-#define pinD3 keyA4    //Arduino pin D3
-#define pinD4 keyG4s   //Arduino pin D4
-#define pinD5 keyG4    //Arduino pin D5
-#define pinD6 keyF4s   //Arduino pin D6
-#define pinD7 keyF4    //Arduino pin D7
-#define pinB0 keyE4    //Arduino pin D8
-#define pinB1 keyE4s   //Arduino pin D9  used for audio out
-#define pinB2 keyD4s   //Arduino pin D10
-#define pinB3 keyD4    //Arduino pin D11
-#define pinB4 keyC4s   //Arduino pin D12
-#define pinB5 keyC4    //Arduino pin D13
-#define pinB6 keyB4s   //Arduino pin D14 inexistent
-#define pinB7 keyE5s   //Arduino pin D15 inexistent
-#define pinC0 keyC5s   //Arduino pin A0
-#define pinC1 keyD5    //Arduino pin A1
-#define pinC2 keyD5s   //Arduino pin A2
-#define pinC3 keyE5    //Arduino pin A2
-#define pinC4 keyF5    //Arduino pin A3
-#define pinC5 instrkey //Arduino pin A4
-#define pinC6 keyF5s   //Arduino pin A5 inexistent
-#define pinC7 keyG5    //Arduino pin A6 inexistent
+//define the pin to key mapping for 22-key keyboard
+#define pinB0 keyC4
+#define pinB1 keyC4s
+#define pinB2 keyD4
+#define pinB3 keyD4s
+#define pinB4 keyE4
+#define pinB5 keyE4s
+#define pinB6 keyF4
+#define pinB7 keyF4s
+#define pinC0 keyG4
+#define pinC1 keyG4s
+#define pinC2 keyA4
+#define pinC3 keyA4s
+#define pinC4 keyB4
+#define pinC5 keyB4s
+#define pinC6 keyC5
+#define pinC7 keyC5s
+#define pinD0 keyD5
+#define pinD1 keyD5s
+#define pinD2 keyE5
+#define pinD3 keyE5s
+#define pinD4 keyF5
+#define pinD5 instrkey
+#define pinD6 nokey
+#define pinD7 nokey
 
 //set up array with sine values in signed 8-bit numbers
 const float pi = 3.14159265;
-char sine[256];
+int8_t sine[256];
 void setsine() {
   for (uint16_t i = 0; i < 256; ++i) {
     sine[i] = (sin(2 * 3.14159265 * (i + 0.5) / 256)) * 128;
@@ -163,7 +163,7 @@ unsigned int FMamp[nch]  = {0,0,0,0};
   val += sine[((phase[3]+sine[FMphase[3]>>8 & 0xFF]*FMamp[3]) >> 8) & 0xFF] * amp[3];
 
   //set the pulse length
-  TIM1->CCR1 = val/128 + 256;
+  TIM1->CCR1 = (val/32) + (TIM1->ARR >> 1);
 }
 
 //properties of each note played
