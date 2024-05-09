@@ -34,19 +34,24 @@ unsigned int FM_dec[ninstr]  = {   64,  128,  128,  128,   32,  128,  128,  128,
 #define keyD4   2
 #define keyD4s  3
 #define keyE4   4
-#define keyF4   5
-#define keyF4s  6
-#define keyG4   7
-#define keyG4s  8
-#define keyA4   9
-#define keyA4s 10
-#define keyB4  11
-#define keyC5  12
-#define keyC5s 13
-#define keyD5  14
-#define keyD5s 15
-#define keyE5  16
-#define keyF5  17
+#define keyE4s  5
+#define keyF4   6
+#define keyF4s  7
+#define keyG4   8
+#define keyG4s  9
+#define keyA4   10
+#define keyA4s 	11
+#define keyB4  	12
+#define keyB4s  13
+#define keyC5  	14
+#define keyC5s 	15
+#define keyD5  	16
+#define keyD5s 	17
+#define keyE5  	18
+#define keyE5s  19
+#define keyF5  	20
+#define keyF5s  21
+#define keyG5   22
 
 #define nokey 255
 #define instrkey 254
@@ -61,21 +66,21 @@ unsigned int FM_dec[ninstr]  = {   64,  128,  128,  128,   32,  128,  128,  128,
 #define pinD6 keyF4s   //Arduino pin D6
 #define pinD7 keyF4    //Arduino pin D7
 #define pinB0 keyE4    //Arduino pin D8
-#define pinB1 nokey    //Arduino pin D9  used for audio out
+#define pinB1 keyE4s   //Arduino pin D9  used for audio out
 #define pinB2 keyD4s   //Arduino pin D10
 #define pinB3 keyD4    //Arduino pin D11
 #define pinB4 keyC4s   //Arduino pin D12
 #define pinB5 keyC4    //Arduino pin D13
-#define pinB6 nokey    //Arduino pin D14 inexistent
-#define pinB7 nokey    //Arduino pin D15 inexistent
+#define pinB6 keyB4s   //Arduino pin D14 inexistent
+#define pinB7 keyE5s   //Arduino pin D15 inexistent
 #define pinC0 keyC5s   //Arduino pin A0
 #define pinC1 keyD5    //Arduino pin A1
 #define pinC2 keyD5s   //Arduino pin A2
 #define pinC3 keyE5    //Arduino pin A2
 #define pinC4 keyF5    //Arduino pin A3
 #define pinC5 instrkey //Arduino pin A4
-#define pinC6 nokey    //Arduino pin A5 inexistent
-#define pinC7 nokey    //Arduino pin A6 inexistent
+#define pinC6 keyF5s   //Arduino pin A5 inexistent
+#define pinC7 keyG5    //Arduino pin A6 inexistent
 
 //set up array with sine values in signed 8-bit numbers
 const float pi = 3.14159265;
@@ -152,13 +157,13 @@ unsigned int FMamp[nch]  = {0,0,0,0};
   phase[3] += inc[3];
 
   //calculate the output value and set pulse width for timer2
-  int val = sine[(phase[0]+sine[FMphase[0]>>8]*FMamp[0]) >> 8] * amp[0];
-  val += sine[(phase[1]+sine[FMphase[1]>>8]*FMamp[1]) >> 8] * amp[1];
-  val += sine[(phase[2]+sine[FMphase[2]>>8]*FMamp[2]) >> 8] * amp[2];
-  val += sine[(phase[3]+sine[FMphase[3]>>8]*FMamp[3]) >> 8] * amp[3];
+  int val = sine[((phase[0]+sine[FMphase[0]>>8 & 0xFF]*FMamp[0]) >> 8) & 0xFF] * amp[0];
+  val += sine[((phase[1]+sine[FMphase[1]>>8 & 0xFF]*FMamp[1]) >> 8) & 0xFF] * amp[1];
+  val += sine[((phase[2]+sine[FMphase[2]>>8 & 0xFF]*FMamp[2]) >> 8) & 0xFF] * amp[2];
+  val += sine[((phase[3]+sine[FMphase[3]>>8 & 0xFF]*FMamp[3]) >> 8) & 0xFF] * amp[3];
 
   //set the pulse length
-   TIM1->CCR1 = val/128 + 256;
+  TIM1->CCR1 = val/128 + 256;
 }
 
 //properties of each note played
@@ -183,70 +188,7 @@ void synth_tick(void){
 	  uint8_t keypressed = nokey;
 	  uint8_t keyreleased = nokey;
 
-//	  read and interpret input buttons
-//	  prevbutstatD = butstatD;
-//	  prevbutstatB = butstatB;
-//	  prevbutstatC = butstatC;
-//	  butstatD = PIND;
-//	  butstatB = PINB;
-//	  butstatC = PINC;
-//	  if(butstatD!=prevbutstatD){
-//	    if ( pinD0!=nokey and (butstatD & (1<<0)) == 0 and (prevbutstatD & (1<<0)) >  0 ) keypressed  = pinD0;
-//	    if ( pinD0!=nokey and (butstatD & (1<<0)) >  0 and (prevbutstatD & (1<<0)) == 0 ) keyreleased = pinD0;
-//	    if ( pinD1!=nokey and (butstatD & (1<<1)) == 0 and (prevbutstatD & (1<<1)) >  0 ) keypressed  = pinD1;
-//	    if ( pinD1!=nokey and (butstatD & (1<<1)) >  0 and (prevbutstatD & (1<<1)) == 0 ) keyreleased = pinD1;
-//	    if ( pinD2!=nokey and (butstatD & (1<<2)) == 0 and (prevbutstatD & (1<<2)) >  0 ) keypressed  = pinD2;
-//	    if ( pinD2!=nokey and (butstatD & (1<<2)) >  0 and (prevbutstatD & (1<<2)) == 0 ) keyreleased = pinD2;
-//	    if ( pinD3!=nokey and (butstatD & (1<<3)) == 0 and (prevbutstatD & (1<<3)) >  0 ) keypressed  = pinD3;
-//	    if ( pinD3!=nokey and (butstatD & (1<<3)) >  0 and (prevbutstatD & (1<<3)) == 0 ) keyreleased = pinD3;
-//	    if ( pinD4!=nokey and (butstatD & (1<<4)) == 0 and (prevbutstatD & (1<<4)) >  0 ) keypressed  = pinD4;
-//	    if ( pinD4!=nokey and (butstatD & (1<<4)) >  0 and (prevbutstatD & (1<<4)) == 0 ) keyreleased = pinD4;
-//	    if ( pinD5!=nokey and (butstatD & (1<<5)) == 0 and (prevbutstatD & (1<<5)) >  0 ) keypressed  = pinD5;
-//	    if ( pinD5!=nokey and (butstatD & (1<<5)) >  0 and (prevbutstatD & (1<<5)) == 0 ) keyreleased = pinD5;
-//	    if ( pinD6!=nokey and (butstatD & (1<<6)) == 0 and (prevbutstatD & (1<<6)) >  0 ) keypressed  = pinD6;
-//	    if ( pinD6!=nokey and (butstatD & (1<<6)) >  0 and (prevbutstatD & (1<<6)) == 0 ) keyreleased = pinD6;
-//	    if ( pinD7!=nokey and (butstatD & (1<<7)) == 0 and (prevbutstatD & (1<<7)) >  0 ) keypressed  = pinD7;
-//	    if ( pinD7!=nokey and (butstatD & (1<<7)) >  0 and (prevbutstatD & (1<<7)) == 0 ) keyreleased = pinD7;
-//	  }
-//	  if(butstatB!=prevbutstatB){
-//	    if ( pinB0!=nokey and (butstatB & (1<<0)) == 0 and (prevbutstatB & (1<<0)) >  0 ) keypressed  = pinB0;
-//	    if ( pinB0!=nokey and (butstatB & (1<<0)) >  0 and (prevbutstatB & (1<<0)) == 0 ) keyreleased = pinB0;
-//	    if ( pinB1!=nokey and (butstatB & (1<<1)) == 0 and (prevbutstatB & (1<<1)) >  0 ) keypressed  = pinB1;
-//	    if ( pinB1!=nokey and (butstatB & (1<<1)) >  0 and (prevbutstatB & (1<<1)) == 0 ) keyreleased = pinB1;
-//	    if ( pinB2!=nokey and (butstatB & (1<<2)) == 0 and (prevbutstatB & (1<<2)) >  0 ) keypressed  = pinB2;
-//	    if ( pinB2!=nokey and (butstatB & (1<<2)) >  0 and (prevbutstatB & (1<<2)) == 0 ) keyreleased = pinB2;
-//	    if ( pinB3!=nokey and (butstatB & (1<<3)) == 0 and (prevbutstatB & (1<<3)) >  0 ) keypressed  = pinB3;
-//	    if ( pinB3!=nokey and (butstatB & (1<<3)) >  0 and (prevbutstatB & (1<<3)) == 0 ) keyreleased = pinB3;
-//	    if ( pinB4!=nokey and (butstatB & (1<<4)) == 0 and (prevbutstatB & (1<<4)) >  0 ) keypressed  = pinB4;
-//	    if ( pinB4!=nokey and (butstatB & (1<<4)) >  0 and (prevbutstatB & (1<<4)) == 0 ) keyreleased = pinB4;
-//	    if ( pinB5!=nokey and (butstatB & (1<<5)) == 0 and (prevbutstatB & (1<<5)) >  0 ) keypressed  = pinB5;
-//	    if ( pinB5!=nokey and (butstatB & (1<<5)) >  0 and (prevbutstatB & (1<<5)) == 0 ) keyreleased = pinB5;
-//	    if ( pinB6!=nokey and (butstatB & (1<<6)) == 0 and (prevbutstatB & (1<<6)) >  0 ) keypressed  = pinB6;
-//	    if ( pinB6!=nokey and (butstatB & (1<<6)) >  0 and (prevbutstatB & (1<<6)) == 0 ) keyreleased = pinB6;
-//	    if ( pinB7!=nokey and (butstatB & (1<<7)) == 0 and (prevbutstatB & (1<<7)) >  0 ) keypressed  = pinB7;
-//	    if ( pinB7!=nokey and (butstatB & (1<<7)) >  0 and (prevbutstatB & (1<<7)) == 0 ) keyreleased = pinB7;
-//	  }
-//	  if(butstatC!=prevbutstatC){
-//	    if ( pinC0!=nokey and (butstatC & (1<<0)) == 0 and (prevbutstatC & (1<<0)) >  0 ) keypressed  = pinC0;
-//	    if ( pinC0!=nokey and (butstatC & (1<<0)) >  0 and (prevbutstatC & (1<<0)) == 0 ) keyreleased = pinC0;
-//	    if ( pinC1!=nokey and (butstatC & (1<<1)) == 0 and (prevbutstatC & (1<<1)) >  0 ) keypressed  = pinC1;
-//	    if ( pinC1!=nokey and (butstatC & (1<<1)) >  0 and (prevbutstatC & (1<<1)) == 0 ) keyreleased = pinC1;
-//	    if ( pinC2!=nokey and (butstatC & (1<<2)) == 0 and (prevbutstatC & (1<<2)) >  0 ) keypressed  = pinC2;
-//	    if ( pinC2!=nokey and (butstatC & (1<<2)) >  0 and (prevbutstatC & (1<<2)) == 0 ) keyreleased = pinC2;
-//	    if ( pinC3!=nokey and (butstatC & (1<<3)) == 0 and (prevbutstatC & (1<<3)) >  0 ) keypressed  = pinC3;
-//	    if ( pinC3!=nokey and (butstatC & (1<<3)) >  0 and (prevbutstatC & (1<<3)) == 0 ) keyreleased = pinC3;
-//	    if ( pinC4!=nokey and (butstatC & (1<<4)) == 0 and (prevbutstatC & (1<<4)) >  0 ) keypressed  = pinC4;
-//	    if ( pinC4!=nokey and (butstatC & (1<<4)) >  0 and (prevbutstatC & (1<<4)) == 0 ) keyreleased = pinC4;
-//	    if ( pinC5!=nokey and (butstatC & (1<<5)) == 0 and (prevbutstatC & (1<<5)) >  0 ) keypressed  = pinC5;
-//	    if ( pinC5!=nokey and (butstatC & (1<<5)) >  0 and (prevbutstatC & (1<<5)) == 0 ) keyreleased = pinC5;
-//	    if ( pinC6!=nokey and (butstatC & (1<<6)) == 0 and (prevbutstatC & (1<<6)) >  0 ) keypressed  = pinC6;
-//	    if ( pinC6!=nokey and (butstatC & (1<<6)) >  0 and (prevbutstatC & (1<<6)) == 0 ) keyreleased = pinC6;
-//	    if ( pinC7!=nokey and (butstatC & (1<<7)) == 0 and (prevbutstatC & (1<<7)) >  0 ) keypressed  = pinC7;
-//	    if ( pinC7!=nokey and (butstatC & (1<<7)) >  0 and (prevbutstatC & (1<<7)) == 0 ) keyreleased = pinC7;
-//	  }
-
-
-	  //	  read and interpret input buttons
+	  //read and interpret input buttons
 	  if(keys_updated){
 		  keys_updated = false;
 
