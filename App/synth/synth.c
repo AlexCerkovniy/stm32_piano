@@ -103,6 +103,13 @@ uint8_t prevbutstatC=0;
 
 uint8_t instr=0;
 
+#define CURRENT		(0)
+#define PREVIOUS	(1)
+
+uint32_t keys[2] = {0};
+uint32_t keys_changed = 0;
+bool keys_updated = false;
+
 void synth_init(void){
 	//setup the array with sine values
 	setsine();
@@ -237,6 +244,39 @@ void synth_tick(void){
 //	    if ( pinC7!=nokey and (butstatC & (1<<7)) == 0 and (prevbutstatC & (1<<7)) >  0 ) keypressed  = pinC7;
 //	    if ( pinC7!=nokey and (butstatC & (1<<7)) >  0 and (prevbutstatC & (1<<7)) == 0 ) keyreleased = pinC7;
 //	  }
+
+
+	  //	  read and interpret input buttons
+	  if(keys_updated){
+		  keys_updated = false;
+
+		  if(pinB0 != nokey && (keys_changed & 0x01)) (keys[CURRENT] & 0x01)?(keypressed = pinB0):(keyreleased = pinB0);
+		  if(pinB1 != nokey && (keys_changed & 0x02)) (keys[CURRENT] & 0x02)?(keypressed = pinB1):(keyreleased = pinB1);
+		  if(pinB2 != nokey && (keys_changed & 0x04)) (keys[CURRENT] & 0x04)?(keypressed = pinB2):(keyreleased = pinB2);
+		  if(pinB3 != nokey && (keys_changed & 0x08)) (keys[CURRENT] & 0x08)?(keypressed = pinB3):(keyreleased = pinB3);
+		  if(pinB4 != nokey && (keys_changed & 0x10)) (keys[CURRENT] & 0x10)?(keypressed = pinB4):(keyreleased = pinB4);
+		  if(pinB5 != nokey && (keys_changed & 0x20)) (keys[CURRENT] & 0x20)?(keypressed = pinB5):(keyreleased = pinB5);
+		  if(pinB6 != nokey && (keys_changed & 0x40)) (keys[CURRENT] & 0x40)?(keypressed = pinB6):(keyreleased = pinB6);
+		  if(pinB7 != nokey && (keys_changed & 0x80)) (keys[CURRENT] & 0x80)?(keypressed = pinB7):(keyreleased = pinB7);
+
+		  if(pinC0 != nokey && (keys_changed & 0x100)) (keys[CURRENT] & 0x100)?(keypressed = pinC0):(keyreleased = pinC0);
+		  if(pinC1 != nokey && (keys_changed & 0x200)) (keys[CURRENT] & 0x200)?(keypressed = pinC1):(keyreleased = pinC1);
+		  if(pinC2 != nokey && (keys_changed & 0x400)) (keys[CURRENT] & 0x400)?(keypressed = pinC2):(keyreleased = pinC2);
+		  if(pinC3 != nokey && (keys_changed & 0x800)) (keys[CURRENT] & 0x800)?(keypressed = pinC3):(keyreleased = pinC3);
+		  if(pinC4 != nokey && (keys_changed & 0x1000)) (keys[CURRENT] & 0x1000)?(keypressed = pinC4):(keyreleased = pinC4);
+		  if(pinC5 != nokey && (keys_changed & 0x2000)) (keys[CURRENT] & 0x2000)?(keypressed = pinC5):(keyreleased = pinC5);
+		  if(pinC6 != nokey && (keys_changed & 0x4000)) (keys[CURRENT] & 0x4000)?(keypressed = pinC6):(keyreleased = pinC6);
+		  if(pinC7 != nokey && (keys_changed & 0x8000)) (keys[CURRENT] & 0x8000)?(keypressed = pinC7):(keyreleased = pinC7);
+
+		  if(pinD0 != nokey && (keys_changed & 0x10000)) (keys[CURRENT] & 0x10000)?(keypressed = pinD0):(keyreleased = pinD0);
+		  if(pinD1 != nokey && (keys_changed & 0x20000)) (keys[CURRENT] & 0x20000)?(keypressed = pinD1):(keyreleased = pinD1);
+		  if(pinD2 != nokey && (keys_changed & 0x40000)) (keys[CURRENT] & 0x40000)?(keypressed = pinD2):(keyreleased = pinD2);
+		  if(pinD3 != nokey && (keys_changed & 0x80000)) (keys[CURRENT] & 0x80000)?(keypressed = pinD3):(keyreleased = pinD3);
+		  if(pinD4 != nokey && (keys_changed & 0x100000)) (keys[CURRENT] & 0x100000)?(keypressed = pinD4):(keyreleased = pinD4);
+		  if(pinD5 != nokey && (keys_changed & 0x200000)) (keys[CURRENT] & 0x200000)?(keypressed = pinD5):(keyreleased = pinD5);
+		  if(pinD6 != nokey && (keys_changed & 0x400000)) (keys[CURRENT] & 0x400000)?(keypressed = pinD6):(keyreleased = pinD6);
+		  if(pinD7 != nokey && (keys_changed & 0x800000)) (keys[CURRENT] & 0x800000)?(keypressed = pinD7):(keyreleased = pinD7);
+	  }
 
 	  setPWM(); //#1
 
@@ -381,3 +421,12 @@ void synth_tick(void){
 	  setPWM(); //#15
 }
 
+void synth_set_keys(uint32_t mask){
+	keys[CURRENT] = mask;
+
+	if(keys[CURRENT] != keys[PREVIOUS]){
+		keys_updated = true;
+		keys_changed = keys[CURRENT] ^ keys[PREVIOUS];
+		keys[PREVIOUS] = keys[CURRENT];
+	}
+}

@@ -103,6 +103,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  synth_set_keys(keyboard_read());
 	  synth_tick();
 
 //	  static uint32_t keyboard_state = 0;
@@ -343,7 +344,7 @@ uint32_t keyboard_read(void){
 		 GPIOB->BSRR = keyboard_coulumn_pin[line] << 16;
 
 		 /* Wait for a while */
-		 for(volatile uint32_t wait = 0; wait < 1000; wait++);
+		 for(volatile uint32_t wait = 0; wait < 50; wait++);
 
 		 /* Read keys state port */
 		 tmp |= (~GPIOB->IDR & (KBD_1_Pin|KBD_2_Pin|KBD_3_Pin|KBD_4_Pin|KBD_5_Pin|KBD_6_Pin)) >> 3;
@@ -355,6 +356,8 @@ uint32_t keyboard_read(void){
 
 	 /* Set all lines to idle */
 	 GPIOB->BSRR = KBD_A_Pin|KBD_B_Pin|KBD_C_Pin|KBD_D_Pin;
+	 __NOP();
+	 __NOP();
 
 	 return tmp;
 }
