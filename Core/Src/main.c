@@ -40,6 +40,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c2;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
@@ -53,13 +55,23 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+gfx8_display_driver_t ssd1306_driver = {
+		.width = SSD1306_WIDTH, .height = SSD1306_HEIGHT,
+		.init = SSD1306_Init,
+		.clear = SSD1306_Clear,
+		.draw = SSD1306_Update,
+		.get_buffer = SSD1306_GetFramebuffer,
+		.set_backlight = NULL,
+		.get_backlight = NULL,
+		.sleep = SSD1306_Sleep
+};
 /* USER CODE END 0 */
 
 /**
@@ -92,7 +104,18 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_TIM1_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
+  G8Lib_Init(&ssd1306_driver);
+  //G8Lib_GetDisplayDrv()->sleep(false);
+  G8Lib_GetDisplayDrv()->clear();
+  //*G8Lib_GetDisplayDrv()->get_buffer() = 0xFF;
+
+  G8Lib_SetCursor(0, 0);
+  G8Lib_SetFont(dos_font_8x8);
+  G8Lib_String("Hello World!", GFX8_ADAPTIVE);
+  G8Lib_GetDisplayDrv()->draw();
+
   synth_init();
   /* USER CODE END 2 */
 
@@ -146,6 +169,40 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C2_Init(void)
+{
+
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 100000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
+
 }
 
 /**
@@ -285,12 +342,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB1 PB2 PB10
-                           PB11 PB9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10
-                          |GPIO_PIN_11|GPIO_PIN_9;
+  /*Configure GPIO pins : PB0 PB2 PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : BUTTON_Pin */
+  GPIO_InitStruct.Pin = BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : KBD_A_Pin KBD_B_Pin KBD_C_Pin KBD_D_Pin */
   GPIO_InitStruct.Pin = KBD_A_Pin|KBD_B_Pin|KBD_C_Pin|KBD_D_Pin;

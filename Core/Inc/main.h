@@ -32,6 +32,8 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "synth.h"
+#include "ssd1306.h"
+#include "gfx8lib.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -62,6 +64,8 @@ void buzzer_stop(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define BUTTON_Pin GPIO_PIN_1
+#define BUTTON_GPIO_Port GPIOB
 #define KBD_A_Pin GPIO_PIN_12
 #define KBD_A_GPIO_Port GPIOB
 #define KBD_B_Pin GPIO_PIN_13
