@@ -52,6 +52,24 @@ unsigned int FM_dec[ninstr]  = {   64,  128,  128,  128,   32,  128,  128,  128,
 #define keyF5  	20
 #define keyF5s  21
 #define keyG5   22
+#define keyG5s  23
+#define keyA5   24
+#define keyA5s  25
+#define keyB5   26
+#define keyB5s  27
+#define keyC6   28
+#define keyC6s  29
+#define keyD6   30
+#define keyD6s  31
+#define keyE6   32
+#define keyE6s  33
+#define keyF6   34
+#define keyF6s  35
+#define keyG6   36
+#define keyG6s  37
+#define keyA6   38
+#define keyA6s  39
+#define keyB6   40
 
 #define nokey 255
 #define instrkey 254
@@ -174,7 +192,7 @@ inline void setPWM(void) {
   val += sine[((phase[3]+sine[FMphase[3]>>8 & 0xFF]*FMamp[3]) >> 8) & 0xFF] * amp[3];
 
   //set the pulse length
-  TIM1->CCR1 = (val/32) + (TIM1->ARR >> 1);
+  TIM1->CCR1 = (val >> 5) + (TIM1->ARR >> 1);
 }
 
 //properties of each note played
