@@ -1455,6 +1455,8 @@ void startup_animation(void){
 	}
 
 	G8Lib_GetDisplayDrv()->clear();
+	G8Lib_RectNoFill(0, 0, 128, 64, GFX8_ADAPTIVE);
+	G8Lib_Rect(3, 3, 122, 58, GFX8_ADAPTIVE);
 	G8Lib_SetFont(dos_font_8x16);
 	G8Lib_SetCursor(40, 16);
 	G8Lib_String("RV-VYM", GFX8_ADAPTIVE);

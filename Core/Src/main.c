@@ -340,25 +340,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BUTTON_Pin */
-  GPIO_InitStruct.Pin = BUTTON_Pin;
+  /*Configure GPIO pins : BUTTON_Pin KBD_1_Pin KBD_2_Pin KBD_3_Pin
+                           KBD_4_Pin KBD_5_Pin KBD_6_Pin */
+  GPIO_InitStruct.Pin = BUTTON_Pin|KBD_1_Pin|KBD_2_Pin|KBD_3_Pin
+                          |KBD_4_Pin|KBD_5_Pin|KBD_6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : KBD_A_Pin KBD_B_Pin KBD_C_Pin KBD_D_Pin */
   GPIO_InitStruct.Pin = KBD_A_Pin|KBD_B_Pin|KBD_C_Pin|KBD_D_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : KBD_1_Pin KBD_2_Pin KBD_3_Pin KBD_4_Pin
-                           KBD_5_Pin KBD_6_Pin */
-  GPIO_InitStruct.Pin = KBD_1_Pin|KBD_2_Pin|KBD_3_Pin|KBD_4_Pin
-                          |KBD_5_Pin|KBD_6_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */

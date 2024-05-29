@@ -78,7 +78,7 @@ unsigned int FM_dec[ninstr]  = {   64,  128,  128,  128,   32,  128,  128,  128,
 #define pinD2 keyE5
 #define pinD3 keyE5s
 #define pinD4 keyF5
-#define pinD5 instrkey
+#define pinD5 keyF5s
 #define pinD6 nokey
 #define pinD7 nokey
 
@@ -99,13 +99,6 @@ void settones() {
   }
 }
 
-uint8_t butstatD=0;
-uint8_t butstatB=0;
-uint8_t butstatC=0;
-uint8_t prevbutstatD=0;
-uint8_t prevbutstatB=0;
-uint8_t prevbutstatC=0;
-
 uint8_t instr=0;
 
 #define CURRENT		(0)
@@ -114,6 +107,20 @@ uint8_t instr=0;
 uint32_t keys[2] = {0};
 uint32_t keys_changed = 0;
 bool keys_updated = false;
+bool key_instrument = false;
+
+// Show current instrument number on screen
+static void display_instrument(void){
+	G8Lib_GetDisplayDrv()->clear();
+	G8Lib_RectNoFill(0, 0, 128, 64, GFX8_ADAPTIVE);
+	G8Lib_RectNoFill(3, 3, 122, 58, GFX8_ADAPTIVE);
+	G8Lib_SetFont(dos_font_8x16);
+	G8Lib_SetCursor(24, 16);
+	G8Lib_String("INSTRUMENT", GFX8_ADAPTIVE);
+	G8Lib_SetCursor(48, 36);
+	G8Lib_Print(GFX8_ADAPTIVE, "%u/%u", instr, ninstr);
+	G8Lib_GetDisplayDrv()->draw();
+}
 
 void synth_init(void){
 	//setup the array with sine values
@@ -121,6 +128,9 @@ void synth_init(void){
 
 	//setup array with tone frequency phase increments
 	settones();
+
+	//show current instrument number on screen
+	display_instrument();
 
 	/* Enable PWM output */
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -136,8 +146,9 @@ unsigned int FMinc[nch]  = {0,0,0,0};
 unsigned int FMamp[nch]  = {0,0,0,0};
 
 // main function (forced inline) to update the pulse length
-//inline void setPWM(void) __attribute__((always_inline));
-/*inline*/ void setPWM(void) {
+inline void setPWM(void) __attribute__((always_inline));
+
+inline void setPWM(void) {
   //wait for the timer to complete loop
   while((TIM1->SR & TIM_SR_UIF) == 0);
 
@@ -222,13 +233,22 @@ void synth_tick(void){
 
 	  setPWM(); //#1
 
-	  //change instrument if instrument select button is pressed
-	  if ( keypressed==instrkey) {
-	    instr++;
-	    if (instr>=ninstr) instr=0;
-	    keypressed=keyA4;
+	  bool key_instrument_current = (BUTTON_GPIO_Port->IDR & BUTTON_Pin)?(false):(true);
+	  if(key_instrument != key_instrument_current){
+		  if(key_instrument_current == true){
+			  if (++instr >= ninstr){
+				  instr=0;
+			  }
+
+			  display_instrument();
+			  keypressed=keyA4;
+		  }
+		  else{
+			  keyreleased=keyA4;
+		  }
+
+		  key_instrument = key_instrument_current;
 	  }
-	  if (keyreleased==instrkey) keyreleased=keyA4;
 
 	  setPWM(); //#2
 
